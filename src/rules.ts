@@ -93,10 +93,10 @@ const MEDICAL_WORDS =
   /injur|diagnos|medical|surgery|surgical|operation|fracture|rupture|ligament|\bacl\b|hamstring|concussion|rehab|illness|disease|physio/i;
 
 /**
- * Rule 4: `extensions` contains no diagnoses, injury details or medical history.
+ * §12: a producer must not put diagnoses, injury details or medical history in `extensions`.
  *
- * Software cannot decide this with certainty. This check finds words that suggest medical content,
- * and reports a warning. A person must make the decision.
+ * This is not a rule in §13.1, because software cannot decide it with certainty. §12 permits a warning.
+ * This check finds words that suggest medical content. A person must make the decision.
  */
 export function checkExtensionsForMedicalContent(document: AnyRecord): Issue[] {
   if (!isRecord(document.extensions)) return [];
@@ -107,7 +107,6 @@ export function checkExtensionsForMedicalContent(document: AnyRecord): Issue[] {
       issues.push({
         code: "possible_medical_extension",
         path: toPointer(["extensions", key]),
-        rule: 4,
         severity: "warning",
         message: `Extension ${key} can contain medical information. FPDS does not permit diagnoses, injury details or medical history.`,
       });
@@ -125,7 +124,7 @@ function containsMedicalText(value: unknown): boolean {
   return false;
 }
 
-/** Rule 5: `secondary_positions` does not contain the primary position. */
+/** Rule 4: `secondary_positions` does not contain the primary position. */
 export function checkSecondaryPositions(document: AnyRecord): Issue[] {
   const positions = isRecord(document.positions) ? document.positions : {};
   const primary = positions.primary_position;
@@ -136,7 +135,7 @@ export function checkSecondaryPositions(document: AnyRecord): Issue[] {
     {
       code: "secondary_repeats_primary",
       path: "/positions/secondary_positions",
-      rule: 5,
+      rule: 4,
       severity: "error",
       message: `Secondary positions include ${primary}, which is already the primary position.`,
     },

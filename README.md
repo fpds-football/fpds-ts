@@ -78,8 +78,7 @@ Call `prepareDocument` each time the user exports. Each call makes a new `submis
 
 ## Limits
 
-- **Rule 4 of §13.1** says that `extensions` contains no medical information. Software cannot decide this with certainty. The library reports a warning when an extension contains words such as "injury" or "diagnosis". A person must decide.
-- **A person born on 29 February** becomes 18 on 1 March in a year that is not a leap year. The specification does not state this. The library uses the date that keeps the person a minor for longer.
+- **Medical information in extensions.** §12 of the specification makes the producer responsible for this rule, because software cannot decide it with certainty. The library reports a warning when an extension contains words such as "injury" or "diagnosis". A warning does not make a document invalid.
 - **Valid is not true.** A valid document has the correct structure. The library does not check that the information in the document is true.
 
 ## Conformance

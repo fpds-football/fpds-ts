@@ -134,5 +134,5 @@ export interface Issue {
   message: string;
   severity: "error" | "warning";
   /** The rule in §13.1 of the specification, if the issue comes from one. */
-  rule?: 1 | 2 | 3 | 4 | 5;
+  rule?: 1 | 2 | 3 | 4;
 }

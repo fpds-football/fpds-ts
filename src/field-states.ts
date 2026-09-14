@@ -210,7 +210,7 @@ export function getFieldStateIssues(draft: DraftDocument): Issue[] {
             path: pointer,
             message: disabled.reason,
             severity: "error",
-            ...(pointer === "/positions/secondary_positions" ? { rule: 5 as const } : {}),
+            ...(pointer === "/positions/secondary_positions" ? { rule: 4 as const } : {}),
           });
           break;
         }

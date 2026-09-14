@@ -17,6 +17,13 @@ describe("isMinorOn", () => {
     expect(isMinorOn(birth, on)).toBe(expected);
   });
 
+  it("uses the date in the time zone offset of the timestamp", async () => {
+    const { calculateIsMinor } = await import("../src/index.js");
+    // 23:30 at UTC-5 on 13 September is 14 September in UTC. The date in the timestamp is 13 September.
+    expect(calculateIsMinor("2008-09-14", "2026-09-13T23:30:00-05:00")).toBe(true);
+    expect(calculateIsMinor("2008-09-14", "2026-09-14T00:30:00+02:00")).toBe(false);
+  });
+
   it("returns undefined for a date that does not exist", () => {
     expect(isMinorOn("2003-02-30", "2026-01-01")).toBeUndefined();
   });
@@ -50,18 +57,20 @@ describe("rules in §13.1", () => {
     expect(codes(document)).toContain("provenance_unresolved");
   });
 
-  it("rule 4: warns about possible medical content in extensions, without making the document invalid", () => {
+  it("§12: warns about possible medical content in extensions, without making the document invalid", () => {
     const document = example("midfielder-under-contract.json");
     document.extensions["com.example/notes"] = "Hamstring injury in March";
     const result = validate(document);
     expect(result.valid).toBe(true);
-    expect(result.issues).toContainEqual(expect.objectContaining({ code: "possible_medical_extension", severity: "warning" }));
+    const warning = result.issues.find((i) => i.code === "possible_medical_extension");
+    expect(warning).toMatchObject({ severity: "warning" });
+    expect(warning?.rule).toBeUndefined();
   });
 
-  it("rule 5: reports a secondary position that repeats the primary position", () => {
+  it("rule 4: reports a secondary position that repeats the primary position", () => {
     const document = example("midfielder-under-contract.json");
     document.positions.secondary_positions = ["CM", "CAM"];
-    expect(codes(document)).toContain("secondary_repeats_primary");
+    expect(validate(document).issues).toContainEqual(expect.objectContaining({ code: "secondary_repeats_primary", rule: 4 }));
   });
 });
 
