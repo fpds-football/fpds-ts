@@ -4,6 +4,15 @@ This file records the changes to `@fpds-football/fpds`. The version of this pack
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2] - 2026-09-14
+
+### Changed
+
+- The schema permits only listed country codes: ISO 3166-1 alpha-3, plus `ENG`, `SCO`, `WAL`, `NIR` and `XKX` (FPDS D-42).
+- A country code that is not permitted gets a message that explains the football codes.
+
+## [0.1.0-alpha.1] - 2026-09-14
+
 ### Changed
 
 - `getFieldStates` gives the states of representation fields when the sender is an intermediary, before the block exists.

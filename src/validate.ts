@@ -191,6 +191,13 @@ function mapSchemaError(error: ErrorObject): Issue {
       return issue("invalid_type", path, `${labelFor(path)} has the wrong type of value. Expected ${describeType(String(params.type))}.`);
     case "enum":
     case "const":
+      if (COUNTRY_PATH.test(path)) {
+        return issue(
+          "invalid_value",
+          path,
+          `${labelFor(path)} is not a country code that FPDS permits. Use a three-letter ISO code in capitals, for example POL. For a football nation in the United Kingdom, use ENG, SCO, WAL or NIR.`,
+        );
+      }
       return issue("invalid_value", path, `${labelFor(path)} has a value that FPDS does not permit.${allowedValues(path)}`);
     case "pattern":
     case "format":
@@ -211,6 +218,8 @@ function mapSchemaError(error: ErrorObject): Issue {
   }
 }
 
+const COUNTRY_PATH = /(^\/player\/nationalities\/[0-9]+|\/country|\/competition_country)$/;
+
 function describeType(type: string): string {
   return { string: "text", integer: "a whole number", number: "a number", boolean: "true or false", object: "a group of fields", array: "a list" }[type] ?? type;
 }
@@ -220,7 +229,6 @@ function formatHint(path: string): string {
   if (/submitted_at|asserted_at$/.test(path)) return " Use a time with a time zone, for example 2026-09-13T09:41:00Z.";
   if (path.endsWith("/season")) return " Use YYYY/YY or YYYY, for example 2025/26 or 2026.";
   if (path.endsWith("/submission_id")) return " Use a lowercase UUID, for example b7f3c2e1-4a9d-4f11-9c3e-2a1d5f8b0c44.";
-  if (/country|nationalities\/[0-9]+$/.test(path)) return " Use a three-letter country code in capitals, for example POL.";
   if (path === "/fpds_version") return " Use 0.1.x, for example 0.1.0.";
   return "";
 }

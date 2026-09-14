@@ -85,6 +85,21 @@ describe("validate", () => {
     expect(codes(document)).toEqual(["unsupported_version"]);
   });
 
+  it("gives a plain-English message for a country code that is not permitted", () => {
+    const document = example("midfielder-under-contract.json");
+    document.player.nationalities = ["GER"];
+    expect(validate(document).issues).toContainEqual(
+      expect.objectContaining({ code: "invalid_value", path: "/player/nationalities/0", message: expect.stringContaining("ENG, SCO, WAL or NIR") }),
+    );
+  });
+
+  it("accepts the football codes for the United Kingdom and Kosovo", () => {
+    const document = example("midfielder-under-contract.json");
+    document.player.nationalities = ["ENG", "XKX"];
+    document.performance[0].competition_country = "SCO";
+    expect(validate(document).valid).toBe(true);
+  });
+
   it("gives a plain-English message for a conditional rule", () => {
     const document = example("midfielder-under-contract.json");
     delete document.contract.expiry_date;
