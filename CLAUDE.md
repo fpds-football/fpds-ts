@@ -20,6 +20,10 @@ pnpm typecheck
 pnpm build
 ```
 
+## Release
+
+Push a tag that matches `version` in `package.json`, for example `v0.1.0-alpha.0`. `.github/workflows/release.yml` tests, builds and publishes to npm with provenance. A pre-release version publishes under its label, for example `alpha`, not `latest`. Do not push a release tag without the user.
+
 ## Style
 
 - Messages to users are in Simple English (ASD-STE100, pragmatic mode), with British spelling. Use the `simple-english` skill.

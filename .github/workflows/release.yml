@@ -1,0 +1,67 @@
+name: release
+
+# Publishes @fpds-football/fpds to npm when a version tag such as v0.1.0-alpha.0 is pushed.
+# The tag must match the version in package.json.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      FPDS_SPEC_DIR: ${{ github.workspace }}/spec
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: fpds-ts
+
+      - uses: actions/checkout@v5
+        with:
+          repository: fpds-football/spec
+          path: spec
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: fpds-ts/package.json
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: fpds-ts/pnpm-lock.yaml
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        working-directory: fpds-ts
+        run: pnpm install --frozen-lockfile
+
+      - name: The tag matches the package version
+        working-directory: fpds-ts
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package version $version"
+            exit 1
+          fi
+
+      - name: Typecheck, test and build
+        working-directory: fpds-ts
+        run: pnpm typecheck && pnpm test && pnpm build
+
+      - name: Publish to npm
+        working-directory: fpds-ts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          case "$version" in
+            *-*) tag=$(echo "$version" | sed -E 's/^[^-]+-([a-z]+).*/\1/') ;;
+            *) tag=latest ;;
+          esac
+          npm publish --access public --provenance --tag "$tag"
