@@ -1,0 +1,572 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fpds.football/schema/v0.1/player.json",
+  "title": "FPDS Player Submission",
+  "description": "Football Player Data Standard v0.1.0. One player submission.",
+  "type": "object",
+  "required": [
+    "fpds_version",
+    "submission",
+    "player",
+    "positions",
+    "contract",
+    "consent"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "fpds_version": {
+      "type": "string",
+      "pattern": "^0\\.1\\.[0-9]+$"
+    },
+    "submission": {
+      "type": "object",
+      "required": [
+        "submission_id",
+        "submitted_at",
+        "purposes",
+        "sender"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "submission_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "$comment": "SPEC section 4.3: a lowercase RFC 9562 UUID. Version 4 or 7 is recommended."
+        },
+        "submitted_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "purposes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "permanent_transfer",
+              "loan",
+              "trial",
+              "information_only"
+            ]
+          },
+          "if": {
+            "contains": {
+              "const": "information_only"
+            }
+          },
+          "then": {
+            "maxItems": 1
+          }
+        },
+        "sender": {
+          "enum": [
+            "intermediary",
+            "player"
+          ]
+        }
+      }
+    },
+    "player": {
+      "type": "object",
+      "required": [
+        "full_name",
+        "date_of_birth",
+        "nationalities"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "full_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "date_of_birth": {
+          "$ref": "#/$defs/date"
+        },
+        "nationalities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          }
+        },
+        "current_club": {
+          "$ref": "#/$defs/club"
+        },
+        "external_ids": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "fifa_connect_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "positions": {
+      "type": "object",
+      "required": [
+        "primary_position"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "primary_position": {
+          "$ref": "#/$defs/positionCode"
+        },
+        "secondary_positions": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/positionCode"
+          }
+        }
+      }
+    },
+    "contract": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "under_contract",
+            "on_loan",
+            "amateur",
+            "free_agent",
+            "unknown"
+          ]
+        },
+        "expiry_date": {
+          "$ref": "#/$defs/date"
+        },
+        "parent_club": {
+          "$ref": "#/$defs/club"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "under_contract",
+                  "on_loan"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "expiry_date"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "amateur",
+                  "free_agent",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "expiry_date"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "on_loan"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "parent_club"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "parent_club"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "representation": {
+      "type": "object",
+      "required": [
+        "agent_name",
+        "mandate_status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "agent_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fifa_agent_licence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mandate_status": {
+          "enum": [
+            "exclusive",
+            "non_exclusive",
+            "club_mandate",
+            "none",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "performance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "season",
+          "competition",
+          "competition_country",
+          "appearances",
+          "minutes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "season": {
+            "type": "string",
+            "pattern": "^[0-9]{4}(/[0-9]{2})?$"
+          },
+          "competition": {
+            "type": "string",
+            "minLength": 1
+          },
+          "competition_country": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "appearances": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "minutes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "goals": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "assists": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "clean_sheets": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "consent": {
+      "type": "object",
+      "required": [
+        "lawful_basis",
+        "is_minor"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "lawful_basis": {
+          "enum": [
+            "consent",
+            "contract",
+            "legitimate_interest",
+            "legal_obligation",
+            "not_stated"
+          ]
+        },
+        "consent_date": {
+          "$ref": "#/$defs/date"
+        },
+        "is_minor": {
+          "type": "boolean"
+        }
+      },
+      "if": {
+        "properties": {
+          "lawful_basis": {
+            "const": "consent"
+          }
+        },
+        "required": [
+          "lawful_basis"
+        ]
+      },
+      "then": {
+        "required": [
+          "consent_date"
+        ]
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^/"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "enum": [
+              "verified",
+              "third_party_data",
+              "club_stated",
+              "agent_stated",
+              "player_stated",
+              "estimated",
+              "unknown"
+            ]
+          },
+          "asserted_by": {
+            "type": "string",
+            "minLength": 1
+          },
+          "asserted_at": {
+            "$ref": "#/$defs/dateTime"
+          },
+          "verified_against": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "if": {
+          "properties": {
+            "source": {
+              "const": "verified"
+            }
+          },
+          "required": [
+            "source"
+          ]
+        },
+        "then": {
+          "required": [
+            "verified_against"
+          ]
+        }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+/[a-z][a-z0-9_]*$",
+        "not": {
+          "pattern": "^football\\.fpds[./]"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "SPEC section 7: a player under contract, on loan or registered as an amateur has a current club.",
+      "if": {
+        "properties": {
+          "contract": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "under_contract",
+                  "on_loan",
+                  "amateur"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "contract"
+        ]
+      },
+      "then": {
+        "properties": {
+          "player": {
+            "required": [
+              "current_club"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "$comment": "SPEC section 7: a free agent has no current club.",
+      "if": {
+        "properties": {
+          "contract": {
+            "properties": {
+              "status": {
+                "const": "free_agent"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "required": [
+          "contract"
+        ]
+      },
+      "then": {
+        "properties": {
+          "player": {
+            "not": {
+              "required": [
+                "current_club"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "$comment": "SPEC section 4.2: an intermediary states their representation.",
+      "if": {
+        "properties": {
+          "submission": {
+            "properties": {
+              "sender": {
+                "const": "intermediary"
+              }
+            },
+            "required": [
+              "sender"
+            ]
+          }
+        },
+        "required": [
+          "submission"
+        ]
+      },
+      "then": {
+        "required": [
+          "representation"
+        ]
+      }
+    },
+    {
+      "$comment": "SPEC section 10: a minor does not send their own submission.",
+      "if": {
+        "properties": {
+          "consent": {
+            "properties": {
+              "is_minor": {
+                "const": true
+              }
+            },
+            "required": [
+              "is_minor"
+            ]
+          }
+        },
+        "required": [
+          "consent"
+        ]
+      },
+      "then": {
+        "properties": {
+          "submission": {
+            "properties": {
+              "sender": {
+                "not": {
+                  "const": "player"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "club": {
+      "type": "object",
+      "required": [
+        "name",
+        "country"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    },
+    "positionCode": {
+      "enum": [
+        "GK",
+        "RB",
+        "LB",
+        "RWB",
+        "LWB",
+        "CB",
+        "LCB",
+        "RCB",
+        "CDM",
+        "CM",
+        "CAM",
+        "RM",
+        "LM",
+        "RW",
+        "LW",
+        "ST"
+      ]
+    }
+  }
+}

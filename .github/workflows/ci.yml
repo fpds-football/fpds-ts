@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      FPDS_SPEC_DIR: ${{ github.workspace }}/spec
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: fpds-ts
+
+      - uses: actions/checkout@v5
+        with:
+          repository: fpds-football/spec
+          path: spec
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: fpds-ts/package.json
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: fpds-ts/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: fpds-ts
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        working-directory: fpds-ts
+        run: pnpm typecheck
+
+      - name: Run the tests, including the FPDS conformance suite
+        working-directory: fpds-ts
+        run: pnpm test
+
+      - name: Build
+        working-directory: fpds-ts
+        run: pnpm build

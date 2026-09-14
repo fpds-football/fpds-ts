@@ -1,0 +1,45 @@
+{
+  "name": "@fpds-football/fpds",
+  "version": "0.1.0-alpha.0",
+  "description": "Validate and prepare Football Player Data Standard (FPDS) submissions.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fpds-football/fpds-ts.git"
+  },
+  "homepage": "https://fpds.football",
+  "keywords": ["fpds", "football", "json-schema", "validation", "transfer", "scouting"],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schema/v0.1/player.json": "./dist/schema/v0.1/player.json"
+  },
+  "files": ["dist", "LICENSE", "README.md"],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "sync-schema": "node scripts/sync-schema.mjs",
+    "compile-schema": "node scripts/compile-schema.mjs",
+    "typecheck": "pnpm compile-schema && tsc --noEmit",
+    "test": "pnpm compile-schema && vitest run",
+    "build": "pnpm compile-schema && tsup",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "fast-json-patch": "^3.1.1",
+    "tsup": "^8.5.1",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.0"
+  },
+  "packageManager": "pnpm@11.5.1"
+}
