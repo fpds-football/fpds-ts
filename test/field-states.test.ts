@@ -55,6 +55,14 @@ describe("getFieldStates", () => {
     expect(fields["/contract/parent_club"]?.state).toBe(parent);
   });
 
+  it("gives states for representation fields before the block exists, and reports only the missing block", () => {
+    const draft: DraftDocument = { submission: { sender: "intermediary" } };
+    expect(getFieldStates(draft).fields["/representation/agent_name"]?.state).toBe("required");
+    const paths = getFieldStateIssues(draft).map((i) => i.path);
+    expect(paths).toContain("/representation");
+    expect(paths).not.toContain("/representation/agent_name");
+  });
+
   it("makes representation required for an intermediary and optional for a player", () => {
     expect(getFieldStates({ submission: { sender: "intermediary" } }).fields["/representation"]?.state).toBe("required");
     expect(getFieldStates({ submission: { sender: "player" } }).fields["/representation"]?.state).toBe("optional");

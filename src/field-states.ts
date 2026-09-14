@@ -128,7 +128,7 @@ export function getFieldStates(draft: DraftDocument): FieldStatesResult {
   } else {
     set("/representation", { state: "optional", reason: "Select a sender first." });
   }
-  if (draft.representation !== undefined) {
+  if (draft.representation !== undefined || sender === "intermediary") {
     set("/representation/agent_name", { state: "required" });
     set("/representation/fifa_agent_licence", { state: "optional" });
     set("/representation/mandate_status", { state: "required" });
@@ -185,7 +185,12 @@ export function getFieldStateIssues(draft: DraftDocument): Issue[] {
     if (field.state === "calculated") continue;
     const { present, value } = lookup(draft, pointer);
 
-    if (field.state === "required" && !present) {
+    // When a required block is missing, report the block only, not each field inside it.
+    const missingParent = Object.entries(fields).some(
+      ([parent, state]) =>
+        state.state === "required" && pointer.startsWith(`${parent}/`) && !lookup(draft, parent).present,
+    );
+    if (field.state === "required" && !present && !missingParent) {
       issues.push({
         code: "required",
         path: pointer,

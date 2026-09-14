@@ -1,6 +1,6 @@
 {
   "name": "@fpds-football/fpds",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Validate and prepare Football Player Data Standard (FPDS) submissions.",
   "license": "Apache-2.0",
   "repository": {
@@ -8,7 +8,14 @@
     "url": "git+https://github.com/fpds-football/fpds-ts.git"
   },
   "homepage": "https://fpds.football",
-  "keywords": ["fpds", "football", "json-schema", "validation", "transfer", "scouting"],
+  "keywords": [
+    "fpds",
+    "football",
+    "json-schema",
+    "validation",
+    "transfer",
+    "scouting"
+  ],
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -18,7 +25,11 @@
     },
     "./schema/v0.1/player.json": "./dist/schema/v0.1/player.json"
   },
-  "files": ["dist", "LICENSE", "README.md"],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "engines": {
     "node": ">=20"
   },

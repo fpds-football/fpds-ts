@@ -4,6 +4,13 @@ This file records the changes to `@fpds-football/fpds`. The version of this pack
 
 ## [Unreleased]
 
+### Changed
+
+- `getFieldStates` gives the states of representation fields when the sender is an intermediary, before the block exists.
+- `getFieldStateIssues` does not report a missing field inside a required block that is itself missing.
+
+## [0.1.0-alpha.0] - 2026-09-14
+
 ### Added
 
 - `validate`: checks the FPDS 0.1 schema and the rules in §13.1, and returns issues in plain English.
