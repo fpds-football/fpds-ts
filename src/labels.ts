@@ -42,6 +42,11 @@ const FIELD_LABELS: Record<string, string> = {
   "/performance/*/goals": "Goals",
   "/performance/*/assists": "Assists",
   "/performance/*/clean_sheets": "Clean sheets",
+  "/media": "Media",
+  "/media/*": "Media link",
+  "/media/*/type": "Media type",
+  "/media/*/video_type": "Video type",
+  "/media/*/url": "URL",
   "/consent": "Consent",
   "/consent/lawful_basis": "Lawful basis",
   "/consent/consent_date": "Consent date",
@@ -84,6 +89,8 @@ export const VALUE_LABELS = {
     legal_obligation: "Legal obligation",
     not_stated: "Not stated",
   },
+  media_type: { video: "Video" },
+  video_type: { highlights: "Highlights", full_match: "Full match" },
   source: {
     verified: "Verified",
     third_party_data: "Data provider",
@@ -133,6 +140,10 @@ export function labelFor(pointer: string): string {
   if (tokens[0] === "performance" && tokens.length >= 2 && /^[0-9]+$/.test(tokens[1] ?? "")) {
     const row = Number(tokens[1]) + 1;
     return tokens.length === 2 ? `Season record ${row}` : `Season record ${row}: ${label}`;
+  }
+  if (tokens[0] === "media" && tokens.length >= 2 && /^[0-9]+$/.test(tokens[1] ?? "")) {
+    const row = Number(tokens[1]) + 1;
+    return tokens.length === 2 ? `Media link ${row}` : `Media link ${row}: ${label}`;
   }
   return label;
 }

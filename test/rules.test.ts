@@ -140,6 +140,27 @@ describe("validate", () => {
     expect(validate(document).valid).toBe(true);
   });
 
+  it("gives a plain-English message for a media URL that is not https", () => {
+    const document = example("midfielder-under-contract.json");
+    document.media[1].url = "http://video.example/widzew-legia-2026-03-08";
+    expect(validate(document).issues).toEqual([
+      {
+        code: "invalid_format",
+        path: "/media/1/url",
+        message: "Media link 2: URL has the wrong format. Use a full link that starts with https://, without spaces and without a user name or password.",
+        severity: "error",
+      },
+    ]);
+  });
+
+  it("lists the permitted video types", () => {
+    const document = example("midfielder-under-contract.json");
+    document.media[0].video_type = "fullmatch";
+    expect(validate(document).issues).toContainEqual(
+      expect.objectContaining({ code: "invalid_value", path: "/media/0/video_type", message: expect.stringContaining("highlights, full_match") }),
+    );
+  });
+
   it("gives a plain-English message for a conditional rule", () => {
     const document = example("midfielder-under-contract.json");
     delete document.contract.expiry_date;

@@ -13,6 +13,8 @@ export type ProvenanceSource =
   | "player_stated"
   | "estimated"
   | "unknown";
+export type MediaType = "video";
+export type VideoType = "highlights" | "full_match";
 export type PositionCode =
   | "GK"
   | "RB"
@@ -45,6 +47,12 @@ export interface SeasonRecord {
   goals?: number;
   assists?: number;
   clean_sheets?: number;
+}
+
+export interface MediaItem {
+  type: MediaType;
+  video_type: VideoType;
+  url: string;
 }
 
 export interface ProvenanceEntry {
@@ -84,6 +92,7 @@ export interface FpdsDocument {
     mandate_status: MandateStatus;
   };
   performance?: SeasonRecord[];
+  media?: MediaItem[];
   consent: {
     lawful_basis: LawfulBasis;
     consent_date?: string;

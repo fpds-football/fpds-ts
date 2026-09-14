@@ -82,6 +82,16 @@ describe("getFieldStates", () => {
     expect(fields["/positions/secondary_positions"]?.disabledValues?.map((d) => d.value)).toEqual(["CM"]);
   });
 
+  it("makes media optional, and each field of a media link required", () => {
+    expect(getFieldStates({}).fields["/media"]?.state).toBe("optional");
+    const { fields } = getFieldStates({ media: [{ type: "video" }] });
+    expect(fields["/media/0/video_type"]?.state).toBe("required");
+    expect(fields["/media/0/url"]?.state).toBe("required");
+    expect(getFieldStateIssues({ media: [{ type: "video" }] }).map((i) => i.path)).toEqual(
+      expect.arrayContaining(["/media/0/video_type", "/media/0/url"]),
+    );
+  });
+
   it("requires a consent date only when the lawful basis is consent", () => {
     expect(getFieldStates({ consent: { lawful_basis: "consent" } }).fields["/consent/consent_date"]?.state).toBe("required");
     expect(getFieldStates({ consent: { lawful_basis: "contract" } }).fields["/consent/consent_date"]?.state).toBe("optional");

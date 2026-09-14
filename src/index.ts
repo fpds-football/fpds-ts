@@ -8,12 +8,15 @@ export type {
   IssueCode,
   LawfulBasis,
   MandateStatus,
+  MediaItem,
+  MediaType,
   PositionCode,
   ProvenanceEntry,
   ProvenanceSource,
   Purpose,
   SeasonRecord,
   Sender,
+  VideoType,
 } from "./types.js";
 
 export { SUPPORTED_VERSIONS, type ValidationResult, validate } from "./validate.js";

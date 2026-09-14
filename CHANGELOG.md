@@ -4,6 +4,16 @@ This file records the changes to `@fpds-football/fpds`. The version of this pack
 
 ## [Unreleased]
 
+## [0.1.0-alpha.4] - 2026-09-14
+
+### Added
+
+- The schema has a `media` array of video links (FPDS D-43). Each item has `type`, `video_type` and an `https` `url`.
+- The types `MediaItem`, `MediaType` and `VideoType`.
+- `getFieldStates` gives the states of `/media` and of the fields in each media link.
+- Labels for media fields, and `VALUE_LABELS.media_type` and `VALUE_LABELS.video_type`.
+- A message for a media URL with the wrong format, which states the `https` rule.
+
 ## [0.1.0-alpha.3] - 2026-09-14
 
 ### Added

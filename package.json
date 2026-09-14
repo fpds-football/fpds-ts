@@ -1,6 +1,6 @@
 {
   "name": "@fpds-football/fpds",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Validate and prepare Football Player Data Standard (FPDS) submissions.",
   "license": "Apache-2.0",
   "repository": {

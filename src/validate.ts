@@ -234,6 +234,9 @@ function formatHint(path: string): string {
   if (path.endsWith("/season")) return " Use YYYY/YY or YYYY, for example 2025/26 or 2026.";
   if (path.endsWith("/submission_id")) return " Use a lowercase UUID, for example b7f3c2e1-4a9d-4f11-9c3e-2a1d5f8b0c44.";
   if (path === "/fpds_version") return " Use 0.1.x, for example 0.1.0.";
+  if (/^\/media\/[0-9]+\/url$/.test(path)) {
+    return " Use a full link that starts with https://, without spaces and without a user name or password.";
+  }
   return "";
 }
 
@@ -244,6 +247,8 @@ function allowedValues(path: string): string {
     [/^\/contract\/status$/, VALUE_LABELS.contract_status],
     [/^\/representation\/mandate_status$/, VALUE_LABELS.mandate_status],
     [/^\/consent\/lawful_basis$/, VALUE_LABELS.lawful_basis],
+    [/^\/media\/[0-9]+\/type$/, VALUE_LABELS.media_type],
+    [/^\/media\/[0-9]+\/video_type$/, VALUE_LABELS.video_type],
     [/\/source$/, VALUE_LABELS.source],
     [/^\/positions\/(primary_position|secondary_positions\/[0-9]+)$/, VALUE_LABELS.position],
   ];

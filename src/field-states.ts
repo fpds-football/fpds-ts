@@ -146,6 +146,14 @@ export function getFieldStates(draft: DraftDocument): FieldStatesResult {
     }
   });
 
+  // Media (§9.3).
+  set("/media", { state: "optional" });
+  (draft.media ?? []).forEach((_, index) => {
+    for (const field of ["type", "video_type", "url"]) {
+      set(toPointer(["media", index, field]), { state: "required" });
+    }
+  });
+
   // Consent (§10).
   set("/consent/lawful_basis", { state: "required" });
   if (draft.consent?.lawful_basis === "consent") {
