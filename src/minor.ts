@@ -52,6 +52,31 @@ export function isMinorOn(dateOfBirth: string, referenceDate: string): boolean |
   return referenceKey < adultKey;
 }
 
+/**
+ * Returns the age in whole years of a person born on `dateOfBirth`, on `referenceDate`.
+ * Both values are `YYYY-MM-DD`. Returns undefined if a date is not valid, or if the reference date is before the birth.
+ *
+ * The age increases at the start of the birthday. A person born on 29 February has their birthday on 1 March
+ * in a year that is not a leap year. This agrees with `isMinorOn`: the result is less than 18 exactly when that
+ * function returns true.
+ */
+export function ageOn(dateOfBirth: string, referenceDate: string): number | undefined {
+  const birth = parseDate(dateOfBirth);
+  const reference = parseDate(referenceDate);
+  if (!birth || !reference) return undefined;
+
+  let birthdayMonth = birth.month;
+  let birthdayDay = birth.day;
+  if (birth.month === 2 && birth.day === 29 && !isLeapYear(reference.year)) {
+    birthdayMonth = 3;
+    birthdayDay = 1;
+  }
+
+  const beforeBirthday = reference.month * 100 + reference.day < birthdayMonth * 100 + birthdayDay;
+  const age = reference.year - birth.year - (beforeBirthday ? 1 : 0);
+  return age < 0 ? undefined : age;
+}
+
 /** Calculates `consent.is_minor` for a document from its date of birth and `submitted_at`. */
 export function calculateIsMinor(dateOfBirth: unknown, submittedAt: unknown): boolean | undefined {
   if (typeof dateOfBirth !== "string" || typeof submittedAt !== "string") return undefined;
@@ -62,4 +87,12 @@ export function calculateIsMinor(dateOfBirth: unknown, submittedAt: unknown): bo
 
 function isLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
+
+/** Calculates the age of the player on the date of `submitted_at`, in the time zone offset of the timestamp (§10.1). */
+export function calculateAge(dateOfBirth: unknown, submittedAt: unknown): number | undefined {
+  if (typeof dateOfBirth !== "string" || typeof submittedAt !== "string") return undefined;
+  const referenceDate = datePartOf(submittedAt);
+  if (!referenceDate) return undefined;
+  return ageOn(dateOfBirth, referenceDate);
 }

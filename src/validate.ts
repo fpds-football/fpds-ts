@@ -1,7 +1,7 @@
 import type { ErrorObject } from "ajv";
 import validateSchema from "./generated/validate-v0-1.js";
 import { labelFor, VALUE_LABELS } from "./labels.js";
-import { calculateIsMinor } from "./minor.js";
+import { calculateAge, calculateIsMinor } from "./minor.js";
 import { escapeToken, toPointer } from "./pointer.js";
 import { checkRules } from "./rules.js";
 import type { FpdsDocument, Issue } from "./types.js";
@@ -15,8 +15,11 @@ export interface ValidationResult {
   issues: Issue[];
   /** The document, typed, when `valid` is true. */
   document?: FpdsDocument;
-  /** Values that the library calculates from the document. */
-  calculated: { isMinor?: boolean };
+  /**
+   * Values that the library calculates from the date of birth and `submitted_at` (§10.1).
+   * `age` is the age in whole years on the date of the submission.
+   */
+  calculated: { isMinor?: boolean; age?: number };
 }
 
 /**
@@ -48,17 +51,18 @@ export function validate(input: unknown): ValidationResult {
   const player = document.player as Record<string, unknown> | undefined;
   const submission = document.submission as Record<string, unknown> | undefined;
   const isMinor = calculateIsMinor(player?.date_of_birth, submission?.submitted_at);
+  const age = calculateAge(player?.date_of_birth, submission?.submitted_at);
 
-  return result(issues, document, isMinor);
+  return result(issues, document, { ...(isMinor === undefined ? {} : { isMinor }), ...(age === undefined ? {} : { age }) });
 }
 
-function result(issues: Issue[], document?: Record<string, unknown>, isMinor?: boolean): ValidationResult {
+function result(issues: Issue[], document?: Record<string, unknown>, calculated: ValidationResult["calculated"] = {}): ValidationResult {
   const valid = !issues.some((i) => i.severity === "error");
   return {
     valid,
     issues,
     ...(valid && document ? { document: document as unknown as FpdsDocument } : {}),
-    calculated: isMinor === undefined ? {} : { isMinor },
+    calculated,
   };
 }
 

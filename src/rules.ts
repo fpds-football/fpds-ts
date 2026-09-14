@@ -1,7 +1,7 @@
 /** The rules in §13.1 of the specification, which JSON Schema cannot express. */
 
 import { labelFor } from "./labels.js";
-import { calculateIsMinor } from "./minor.js";
+import { calculateAge, calculateIsMinor } from "./minor.js";
 import { resolvePointer, toPointer } from "./pointer.js";
 import type { Issue } from "./types.js";
 
@@ -20,15 +20,20 @@ export function checkMinorStatus(document: AnyRecord): Issue[] {
   if (calculated === undefined || typeof consent.is_minor !== "boolean") return [];
   if (consent.is_minor === calculated) return [];
 
+  const age = calculateAge(player.date_of_birth, submission.submitted_at);
+  const claim = calculated ? "This file says that the player is not a minor." : "This file says that the player is a minor.";
+  const finding =
+    age === undefined
+      ? `From the date of birth, the player is ${calculated ? "a minor" : "not a minor"}.`
+      : `From the date of birth, the player was ${age} on the date of the submission.`;
+
   return [
     {
       code: "minor_mismatch",
       path: "/consent/is_minor",
       rule: 1,
       severity: "error",
-      message: calculated
-        ? "This file says that the player is not a minor. From the date of birth, the player is a minor."
-        : "This file says that the player is a minor. From the date of birth, the player is not a minor.",
+      message: `${claim} ${finding}`,
     },
   ];
 }

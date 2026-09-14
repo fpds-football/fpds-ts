@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isMinorOn, prepareDocument, validate } from "../src/index.js";
+import { ageOn, isMinorOn, prepareDocument, validate } from "../src/index.js";
 import { readSpecJson } from "./spec.js";
 
 const example = (name: string) => structuredClone(readSpecJson(`examples/valid/${name}`)) as any;
@@ -29,6 +29,35 @@ describe("isMinorOn", () => {
   });
 });
 
+describe("ageOn", () => {
+  it.each([
+    ["2008-09-14", "2026-09-13", 17],
+    ["2008-09-14", "2026-09-14", 18],
+    ["2010-03-02", "2026-09-14", 16],
+    ["2008-02-29", "2026-02-28", 17],
+    ["2008-02-29", "2026-03-01", 18],
+    ["2004-02-29", "2024-02-29", 20],
+    ["2026-09-14", "2026-09-14", 0],
+  ])("born %s, on %s: age is %s", (birth, on, expected) => {
+    expect(ageOn(birth, on)).toBe(expected);
+  });
+
+  it("returns undefined for a date that does not exist, or a reference date before the birth", () => {
+    expect(ageOn("2003-02-30", "2026-01-01")).toBeUndefined();
+    expect(ageOn("2026-09-15", "2026-09-14")).toBeUndefined();
+  });
+
+  it("agrees with isMinorOn for every day around the 18th birthday", () => {
+    for (const birth of ["2008-02-29", "2008-03-01", "2008-02-28", "2007-12-31", "2008-01-01"]) {
+      const start = Date.UTC(Number(birth.slice(0, 4)) + 17, 11, 1);
+      for (let day = 0; day < 180; day++) {
+        const on = new Date(start + day * 86_400_000).toISOString().slice(0, 10);
+        expect((ageOn(birth, on) as number) < 18, `${birth} on ${on}`).toBe(isMinorOn(birth, on));
+      }
+    }
+  });
+});
+
 describe("rules in §13.1", () => {
   it("rule 1: reports a minor status that does not agree with the date of birth", () => {
     const document = example("midfielder-under-contract.json");
@@ -37,6 +66,17 @@ describe("rules in §13.1", () => {
     expect(result.valid).toBe(false);
     expect(result.issues).toContainEqual(expect.objectContaining({ code: "minor_mismatch", rule: 1 }));
     expect(result.calculated.isMinor).toBe(false);
+  });
+
+  it("rule 1: the message states the calculated age on the date of the submission", () => {
+    const document = example("academy-prospect-minor.json");
+    document.consent.is_minor = false;
+    const result = validate(document);
+    const issue = result.issues.find((i) => i.code === "minor_mismatch");
+    expect(issue?.message).toBe(
+      `This file says that the player is not a minor. From the date of birth, the player was ${result.calculated.age} on the date of the submission.`,
+    );
+    expect(result.calculated.age).toBeLessThan(18);
   });
 
   it("rule 2: reports a season where the second year does not follow the first", () => {

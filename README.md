@@ -45,7 +45,7 @@ Each issue has:
 | `severity` | `"error"` or `"warning"` |
 | `rule` | The number of the rule in §13.1, when the issue comes from one |
 
-`result.calculated.isMinor` is the minor status that the library calculates from the date of birth. A viewer shows this value when it does not agree with the document.
+`result.calculated.isMinor` is the minor status that the library calculates from the date of birth. `result.calculated.age` is the age of the player on the date of the submission. A viewer shows these values when they do not agree with the document.
 
 ## Build a form
 

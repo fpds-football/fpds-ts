@@ -27,7 +27,7 @@ export {
   getFieldStates,
 } from "./field-states.js";
 export { DRAFT_MARKER, FPDS_VERSION, isDraft, type PrepareOptions, prepareDocument } from "./prepare.js";
-export { AGE_OF_MAJORITY, calculateIsMinor, isMinorOn } from "./minor.js";
+export { AGE_OF_MAJORITY, ageOn, calculateAge, calculateIsMinor, isMinorOn } from "./minor.js";
 export { labelFor, VALUE_LABELS } from "./labels.js";
 export { resolvePointer, toPointer } from "./pointer.js";
 export {

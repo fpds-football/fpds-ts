@@ -4,6 +4,17 @@ This file records the changes to `@fpds-football/fpds`. The version of this pack
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3] - 2026-09-14
+
+### Added
+
+- `ageOn` and `calculateAge`: the age in whole years on a date, with the same birthday rules as `isMinorOn` (§10.1).
+- `validate` returns `calculated.age`, the age of the player on the date of the submission.
+
+### Changed
+
+- The `minor_mismatch` message states the calculated age, for example "From the date of birth, the player was 16 on the date of the submission."
+
 ## [0.1.0-alpha.2] - 2026-09-14
 
 ### Changed
